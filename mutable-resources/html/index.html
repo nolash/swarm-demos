@@ -3,34 +3,34 @@
 	<head>
 		<title>Swarm Mutable Resources - feed demo</title>
 	<script>
-
+		var ensName = "mutable.test";
 		function getUpdate() {
 			console.log("updating");
 			var r = new XMLHttpRequest();
-			r.open("GET", "http://localhost:8500/bzz-resource:/mutable.test")
+			r.open("GET", "http://localhost:8500/bzz-resource:/" + ensName);
 			r.responseType = "text";
-			r.onload = function() {
-				if (this.status == 200)  {
-					p = new DOMParser();
-					d = p.parseFromString(r.response, "text/html");
-					e = d.getElementsByTagName("li");
-					for (i = 0; e.length > 0; i++) {
-						document.getElementById("feed_list").appendChild(e[0]);
+			r.addEventListener("load", function(e) {
+				if (r.status == 200) {
+					var p = new DOMParser();
+					var d = p.parseFromString(r.response, "text/html");
+					var l = d.getElementsByTagName("li");
+					for (i = 0; l.length > 0; i++) {
+						document.getElementById("feed_list").appendChild(l[0]);
 					}
 				} else {
 					document.getElementById("feed_list").innerHTML = "no data found";
 				}
-			}
+			});
 			r.send();
 		}
 
 		function sendUpdate(dweet, releaseFunc) {
 			var r = new XMLHttpRequest();
-			r.open("POST", "http://localhost:8500/bzz-resource:/mutable.test/raw")
+			r.open("POST", "http://localhost:8500/bzz-resource:/" + ensName + "/raw")
 			r.responseType = "text";
 			r.addEventListener("load", function(e) {
 				if (r.status == 200) {
-					f = document.getElementById("feed_list");
+					var f = document.getElementById("feed_list");
 					f.prepend(dweet);
 					document.getElementById("error").innerHTML = "<font color='green'>ok</font>";
 				}
@@ -41,7 +41,7 @@
 				document.getElementById("error").innerHTML = "<font color='red'>fail</font>";
 				releaseFunc();
 			});
-			list = document.getElementById("feed_list").cloneNode(true);
+			var list = document.getElementById("feed_list").cloneNode(true);
 			list.prepend(dweet);
 			r.send(list.innerHTML);
 		}
@@ -49,9 +49,9 @@
 		function handleSubmit(e) {
 			e.target.innerText = "sending...";
 			e.target.disabled = true;
-			dweet = document.createElement("li");
+			var dweet = document.createElement("li");
 			dweet.innerText = document.getElementById("dweet_text").value;
-			releaseFunc = function() {
+			var releaseFunc = function() {
 				e.target.disabled = false;
 				e.target.innerText = "send";
 			};
