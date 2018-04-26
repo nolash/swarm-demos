@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Swarm Mutable Resources - feed demo</title>
+	<script>
+
+		function getUpdate() {
+			console.log("updating");
+			var r = new XMLHttpRequest();
+			r.open("GET", "http://localhost:8500/bzz-resource:/mutable.test")
+			r.responseType = "text";
+			r.onload = function() {
+				if (this.status == 200)  {
+					p = new DOMParser();
+					d = p.parseFromString(r.response, "text/html");
+					e = d.getElementsByTagName("li");
+					for (i = 0; e.length > 0; i++) {
+						document.getElementById("feed_list").appendChild(e[0]);
+					}
+				} else {
+					document.getElementById("feed_list").innerHTML = "no data found";
+				}
+			}
+			r.send();
+		}
+
+		function sendUpdate(dweet, releaseFunc) {
+			var r = new XMLHttpRequest();
+			r.open("POST", "http://localhost:8500/bzz-resource:/mutable.test/raw")
+			r.responseType = "text";
+			r.addEventListener("load", function(e) {
+				if (r.status == 200) {
+					f = document.getElementById("feed_list");
+					f.prepend(dweet);
+					document.getElementById("error").innerHTML = "<font color='green'>ok</font>";
+				}
+				releaseFunc();
+			});
+			r.timeout = 1000;
+			r.addEventListener("error", function(e ,v) {
+				document.getElementById("error").innerHTML = "<font color='red'>fail</font>";
+				releaseFunc();
+			});
+			list = document.getElementById("feed_list").cloneNode(true);
+			list.prepend(dweet);
+			r.send(list.innerHTML);
+		}
+
+		function handleSubmit(e) {
+			e.target.innerText = "sending...";
+			e.target.disabled = true;
+			dweet = document.createElement("li");
+			dweet.innerText = document.getElementById("dweet_text").value;
+			releaseFunc = function() {
+				e.target.disabled = false;
+				e.target.innerText = "send";
+			};
+			sendUpdate(dweet, releaseFunc);
+		}
+
+		window.onload = function(e) {
+			document.getElementById("dweet_submit").addEventListener("click", handleSubmit);
+			getUpdate();
+		}
+	</script>
+	</head>
+	<body>
+		<div id="head">
+			<h1>Feed demo</h1>
+			<p>This demonstrates embedding of dynamic content</p>
+			<div id="error"></div>
+			<form id="dweet">
+				<input type="text" id="dweet_text" name="dweet_text" /> <button id="dweet_submit" type="button">send</button>
+			</form>
+			</hr>
+		</div>
+		<div id="feed">
+			<ul id="feed_list">
+			</ul>
+		</div>
+	</body>
+</html>
