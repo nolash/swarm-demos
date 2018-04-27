@@ -2,8 +2,11 @@
 <html>
 	<head>
 		<title>Swarm Mutable Resources - feed demo</title>
+		<script type="text/javascript" src="common.js"></script>
 	<script>
+		// namehash 0xfed6fe4ee69a45181535f11f22f2592b6d21a9de0dfd77dda358612d0cb34067
 		var ensName = "mutable.test";
+		
 		function getUpdate() {
 			console.log("updating");
 			var r = new XMLHttpRequest();
@@ -32,13 +35,13 @@
 				if (r.status == 200) {
 					var f = document.getElementById("feed_list");
 					f.prepend(dweet);
-					document.getElementById("error").innerHTML = "<font color='green'>ok</font>";
+					setError("ok", 0);
 				}
 				releaseFunc();
 			});
 			r.timeout = 1000;
 			r.addEventListener("error", function(e ,v) {
-				document.getElementById("error").innerHTML = "<font color='red'>fail</font>";
+				setError("fail", 1);
 				releaseFunc();
 			});
 			var list = document.getElementById("feed_list").cloneNode(true);
